@@ -182,6 +182,39 @@ func main() {
 		fmt.Println(link)
 	}
 
+	//chapter5.FetchAndParse("https://github.com/MichaelPaul0416?tab=repositories")
+
+	//if line,err := chapter5.ReadUntilEOF();err != nil{
+	//	fmt.Printf("error:%v\n",err)
+	//}else{
+	//	fmt.Printf("line:%s\n",line)
+	//}
+
+	//函数变量
+	f := chapter5.Square
+	fmt.Printf("square:%d\n", f(3))
+	f = chapter5.Negative
+	fmt.Printf("negative:%d\n", f(10))
+	//不能进行如下赋值，会导致编译报错，因为f的类型是func (int) int 而chapter5.Product的类型却是func (int int) int
+	//f = chapter5.Product
+
+	r := chapter5.Composite(3, func(n int) int {
+		return n * n
+	})
+	fmt.Printf("composite:%d\n", r)
+
+	//匿名函数
+	w := chapter5.WithoutNameFunc(2)
+	fmt.Printf("func without name:%d\n", w(3))
+
+	cur := chapter5.TopoSort(chapter5.Prereqs)
+	fmt.Printf("cur:%v\n", cur)
+
+	l1 := chapter5.TopoSort(chapter5.Prereqs)
+	for i, course := range l1 {
+		fmt.Printf("%d:\t%s\n", i+1, course)
+	}
+
 }
 
 func fetch(url string) string {
