@@ -183,7 +183,7 @@ func main() {
 	}
 
 	//chapter5.FetchAndParse("https://github.com/MichaelPaul0416?tab=repositories")
-
+	////
 	//if line,err := chapter5.ReadUntilEOF();err != nil{
 	//	fmt.Printf("error:%v\n",err)
 	//}else{
@@ -215,6 +215,25 @@ func main() {
 		fmt.Printf("%d:\t%s\n", i+1, course)
 	}
 
+	//变长函数
+	chapter5.MultiParamFunc(1, 2, 3, 4, 5, 6, 7, 8, 9)
+	ary := []int{1, 2, 3, 4, 5}
+	//和方法入参为1,2,3,4,5一样的效果
+	chapter5.MultiParamFunc(ary...)
+
+	//格式化错误输出
+	chapter5.LogFormatOfError(10, "error at:%s", "hello[1]")
+
+	//defer
+	chapter5.FuncWithDefer(1, "nicol")
+
+	chapter5.FuncCostTime()
+
+	//defer函数作为匿名函数，获取外层变量，然后修改返回值
+	num := chapter5.AbsOfNumber(3, 10)
+	fmt.Printf("result:%d\n", num)
+
+	chapter5.DeferWhileCycle([]int{1, 2, -1, 3})
 }
 
 func fetch(url string) string {

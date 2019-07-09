@@ -7,6 +7,8 @@ import (
 	"io"
 	"os"
 	"bufio"
+	"time"
+	"log"
 )
 
 type NodeType int32
@@ -64,6 +66,7 @@ func FetchAndParse(url string) {
 	}
 
 	doc, err := html.Parse(read)
+
 	if err != nil {
 		fmt.Printf("html parse error :%s\n", err)
 		os.Exit(1)
@@ -124,6 +127,7 @@ func Product(m, n int) int {
 }
 
 //后面的func 其实就是类似java8里面传了一个lambda表达式进来，一套计算规则作为参数传入
+//函数变量，函数作为一个参数传入
 func Composite(m int, c func(n int) int) int {
 	return m + c(m)
 }
@@ -134,5 +138,70 @@ func WithoutNameFunc(i int) func(o int) int {
 	return func(n int) int {
 		m += 2
 		return m * n
+	}
+}
+
+//变长函数
+func MultiParamFunc(num ...int) {
+	var sum = 0
+	for _, val := range num {
+		sum += val
+	}
+	fmt.Printf("sum:%d\n", sum)
+}
+
+//使用变长函数格式化日志输出
+func LogFormatOfError(line int, prefix string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, "line:%d\t", line)
+	fmt.Fprintf(os.Stderr, prefix, args...)
+	fmt.Fprintln(os.Stderr)
+}
+
+//defer机制
+func FuncWithDefer(num int, tip string) {
+	fmt.Printf("hello:%s;this is the %d times;\n", tip, num)
+	defer func() {
+		fmt.Printf("do finally,closing resource; eg...\n")
+	}()
+	fmt.Printf("show my welcome\n")
+}
+
+func FuncCostTime() {
+	//最后加上()代表trace的返回函数会在FuncCostTime方法执行完毕之后被调用
+	defer trace("big slow operation")()
+	time.Sleep(1 * time.Second)
+	fmt.Printf("hello world\n")
+
+}
+func trace(msg string) func() {
+	start := time.Now()
+	log.Printf("enter func and param is :%s\n", msg)
+	return func() {
+		log.Printf("exit func and cost:%s\n", time.Since(start))
+	}
+}
+
+func AbsOfNumber(num, del int) (res int) {
+	var result = num - del
+	defer func() {
+		//里面的内容就是被延迟执行的内容
+		if res < 0 {
+			res = -res
+		}
+	}() //最后的这对括号代表需要被延迟至方法结束再去执行定义的匿名函数
+	return result
+}
+
+func DeferWhileCycle(ns []int) {
+	for _, v := range ns {
+		fmt.Printf("%d\t", v)
+		if v < 0 {
+			return
+		}
+		defer func() {
+			//这里输出的v永远都是ns的最后一个元素，或者return时的那个v
+			//输出的次数是到目前为止迭代的次数
+			fmt.Printf("done:%d\n", v)
+		}()
 	}
 }
