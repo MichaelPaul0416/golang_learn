@@ -9,6 +9,7 @@ import (
 	"bufio"
 	"time"
 	"log"
+	"io/ioutil"
 )
 
 type NodeType int32
@@ -204,4 +205,28 @@ func DeferWhileCycle(ns []int) {
 			fmt.Printf("done:%d\n", v)
 		}()
 	}
+}
+
+func ReadFileContent(path string){
+	f, err := os.Open(path)
+	if err != nil{
+		fmt.Fprintf(os.Stderr,"open file failed:%s\n",err)
+		return
+	}
+
+	defer func() {
+		fmt.Printf("close file...\n")
+		f.Close()
+	}()
+
+	b,rer := ioutil.ReadAll(f)
+	if rer != nil{
+		fmt.Fprintf(os.Stderr,"read file error:%s\n",rer)
+		return
+	}
+
+	s := string(b)
+	fmt.Printf("file content:%s\n",s)
+
+
 }

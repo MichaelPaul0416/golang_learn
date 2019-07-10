@@ -191,49 +191,64 @@ func main() {
 	//}
 
 	//函数变量
-	f := chapter5.Square
-	fmt.Printf("square:%d\n", f(3))
-	f = chapter5.Negative
-	fmt.Printf("negative:%d\n", f(10))
-	//不能进行如下赋值，会导致编译报错，因为f的类型是func (int) int 而chapter5.Product的类型却是func (int int) int
-	//f = chapter5.Product
-
-	r := chapter5.Composite(3, func(n int) int {
-		return n * n
-	})
-	fmt.Printf("composite:%d\n", r)
-
-	//匿名函数
-	w := chapter5.WithoutNameFunc(2)
-	fmt.Printf("func without name:%d\n", w(3))
-
-	cur := chapter5.TopoSort(chapter5.Prereqs)
-	fmt.Printf("cur:%v\n", cur)
-
-	l1 := chapter5.TopoSort(chapter5.Prereqs)
-	for i, course := range l1 {
-		fmt.Printf("%d:\t%s\n", i+1, course)
-	}
+	//f := chapter5.Square
+	//fmt.Printf("square:%d\n", f(3))
+	//f = chapter5.Negative
+	//fmt.Printf("negative:%d\n", f(10))
+	////不能进行如下赋值，会导致编译报错，因为f的类型是func (int) int 而chapter5.Product的类型却是func (int int) int
+	////f = chapter5.Product
+	//
+	//r := chapter5.Composite(3, func(n int) int {
+	//	return n * n
+	//})
+	//fmt.Printf("composite:%d\n", r)
+	//
+	////匿名函数
+	//w := chapter5.WithoutNameFunc(2)
+	//fmt.Printf("func without name:%d\n", w(3))
+	//
+	//cur := chapter5.TopoSort(chapter5.Prereqs)
+	//fmt.Printf("cur:%v\n", cur)
+	//
+	//l1 := chapter5.TopoSort(chapter5.Prereqs)
+	//for i, course := range l1 {
+	//	fmt.Printf("%d:\t%s\n", i+1, course)
+	//}
 
 	//变长函数
-	chapter5.MultiParamFunc(1, 2, 3, 4, 5, 6, 7, 8, 9)
-	ary := []int{1, 2, 3, 4, 5}
-	//和方法入参为1,2,3,4,5一样的效果
-	chapter5.MultiParamFunc(ary...)
+	//chapter5.MultiParamFunc(1, 2, 3, 4, 5, 6, 7, 8, 9)
+	//ary := []int{1, 2, 3, 4, 5}
+	////和方法入参为1,2,3,4,5一样的效果
+	//chapter5.MultiParamFunc(ary...)
+	//
+	////格式化错误输出
+	//chapter5.LogFormatOfError(10, "error at:%s", "hello[1]")
+	//
+	////defer
+	//chapter5.FuncWithDefer(1, "nicol")
+	//
+	//chapter5.FuncCostTime()
+	//
+	////defer函数作为匿名函数，获取外层变量，然后修改返回值
+	//num := chapter5.AbsOfNumber(3, 10)
+	//fmt.Printf("result:%d\n", num)
+	//
+	//chapter5.DeferWhileCycle([]int{1, 2, -1, 3})
+	//
+	//chapter5.ReadFileContent("./tips")
 
-	//格式化错误输出
-	chapter5.LogFormatOfError(10, "error at:%s", "hello[1]")
 
-	//defer
-	chapter5.FuncWithDefer(1, "nicol")
+	//宕机处理
+	//chapter5.Div(3,0)
 
-	chapter5.FuncCostTime()
+	chapter5.FuncWithDeferAndPanic(10)
 
-	//defer函数作为匿名函数，获取外层变量，然后修改返回值
-	num := chapter5.AbsOfNumber(3, 10)
-	fmt.Printf("result:%d\n", num)
-
-	chapter5.DeferWhileCycle([]int{1, 2, -1, 3})
+	p,err := chapter5.DealPartPanic(-3)
+	if err != nil{
+		fmt.Fprintf(os.Stderr,"protocol error:%s\n",err)
+		os.Exit(1)
+	}
+	fmt.Printf("protocol:%v\n",p)
 }
 
 func fetch(url string) string {
