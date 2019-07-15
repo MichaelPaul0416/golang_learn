@@ -19,6 +19,11 @@ func Distance(p, q Point) float64 {
 	return math.Hypot(p.X-q.X, p.Y-q.Y)
 }
 
+func (p Point) MovePointer(off int){
+	p.X += float64(off)
+	p.Y += float64(off)
+}
+
 type Path []Point
 
 //可以为任何类型添加方法，除非它的类型既不是指针类型也不是接口类型

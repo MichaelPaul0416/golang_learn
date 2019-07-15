@@ -9,6 +9,10 @@ func main(){
 	p := chapter6.Point{1,3}
 	q := chapter6.Point{2,4}
 
+	//绑定到类型上，而不是绑定到指针上
+	p.MovePointer(1)
+	fmt.Printf("move point:%v\n",p)//绑定的对象不是指针类型，所以即便MovePointer内部对对象做了修改，但是还是不会改变原先的
+
 	//将q作为一个参数，传入给p的方法Distance，进行计算调用
 	fmt.Printf("distance:%.2f\n",p.Distance(q))
 
