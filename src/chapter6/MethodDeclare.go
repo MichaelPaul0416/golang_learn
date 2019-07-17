@@ -8,6 +8,14 @@ type Point struct {
 	X, Y float64
 }
 
+func (p Point) Add(q Point) Point {
+	return Point{q.X + p.X, q.Y + p.Y}
+}
+
+func (p Point) Sub(q Point) Point {
+	return Point{p.X - q.X, p.Y - q.Y}
+}
+
 //方法，通过(p Point)将Distance函数绑定到Point类型上
 //p Point:称为方法的接收者
 func (p Point) Distance(q Point) float64 {
@@ -19,7 +27,7 @@ func Distance(p, q Point) float64 {
 	return math.Hypot(p.X-q.X, p.Y-q.Y)
 }
 
-func (p Point) MovePointer(off int){
+func (p Point) MovePointer(off int) {
 	p.X += float64(off)
 	p.Y += float64(off)
 }
@@ -54,8 +62,8 @@ type IntList struct {
 	Next  *IntList
 }
 
-func (list *IntList) SumList() int{
-	if list == nil{
+func (list *IntList) SumList() int {
+	if list == nil {
 		return 0
 	}
 	//递归调用
@@ -65,10 +73,10 @@ func (list *IntList) SumList() int{
 type MapList map[string][]int
 
 //返回key=k对应的list的sum
-func (m MapList) Get(k string) int{
-	if l := m[k]; l != nil{
+func (m MapList) Get(k string) int {
+	if l := m[k]; l != nil {
 		sum := 0
-		for _,v := range l{
+		for _, v := range l {
 			sum += v
 		}
 		return sum
@@ -77,14 +85,14 @@ func (m MapList) Get(k string) int{
 	return 0
 }
 
-func (m MapList) Put(k string,v int) {
-	if m[k] != nil{
+func (m MapList) Put(k string, v int) {
+	if m[k] != nil {
 		l := m[k]
-		l = append(l,v)
+		l = append(l, v)
 		m[k] = l
-	}else {
-		t := make([]int,1)
-		t = append(t,v)
+	} else {
+		t := make([]int, 1)
+		t = append(t, v)
 		m[k] = t
 	}
 }
