@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"flag"
 	"time"
+	"io"
+	"os"
+	"bytes"
 )
 
 func main() {
@@ -29,4 +32,12 @@ func main() {
 	var temp = chapter7.ChangeTemperature("temp", c, "the temperature")
 	flag.Parse()
 	fmt.Printf("%v\n",*temp)
+
+	//接口值=动态类型[java多态中的实际类型]+动态值[实际类型的实例对象]
+	//输出动态类型
+	var w io.Writer
+	w = os.Stdout
+	fmt.Printf("real type:%T\n",w)
+	w = new(bytes.Buffer)
+	fmt.Printf("real type:%T\n",w)
 }
