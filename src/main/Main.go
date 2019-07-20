@@ -1,35 +1,28 @@
 package main
 
 import (
-	"../chapter6"
+	"../chapter7"
 	"fmt"
 )
 
 func main(){
+	var c chapter7.ByteCounter
+	c.Write([]byte("hello"))
+	fmt.Printf("imple:%v\n",c.String())
 
-	is := chapter6.IntSet{make([]uint64,0)}
-	is.Add(69)
-	is.Add(128)
-	is.Add(1)
-	fmt.Printf("is:%v\n",is)
-	fmt.Printf("contain 100 : %t\n",is.Has(100))
+	//ByteCounter实际类型本身就是int
+	c = 0
+	var name = "Paul"
+	//ByteCounter不需要声明实现了什么接口，只需要实现对应的Write方法，就说明它是Writer接口的实现
+	fmt.Fprintf(&c,"hello,%s\n",name)
+	fmt.Printf("impl:%v\n",c.String())
 
-	temp := chapter6.IntSet{make([]uint64,0)}
-	temp.Add(67)
-	temp.Add(24)
-	is.UnionWith(&temp)
-	fmt.Printf("new Inset:%v\n",is.Words)
-	fmt.Printf("contains %d:%t\n",24,is.Has(24))
-
-	fmt.Printf("slice:%v\n",is.String())
-
-	cp := chapter6.IntSet{make([]uint64,0)}
-	cp.Add(67)
-	fmt.Printf("big:%v\n",cp.Words)
-
-	co := chapter6.Count{}
-	co.Init(65,"one")
-	fmt.Printf("Count:%v\n",co)
-	co.Add()
-	fmt.Printf("Add Count:%v\n",co)
+	var crw chapter7.CloseableReaderWriter
+	crw.Write([]byte("write"))
+	//crw.Read([]byte("read"))
+	if err:=crw.Close();err == nil{
+		fmt.Printf("crw closeable:%t\n",true)
+	}else {
+		fmt.Printf("crw closeable:%t\terror:%v\n",false,err)
+	}
 }
