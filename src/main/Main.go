@@ -40,4 +40,17 @@ func main() {
 	fmt.Printf("real type:%T\n",w)
 	w = new(bytes.Buffer)
 	fmt.Printf("real type:%T\n",w)
+
+	//debug := true
+	debug := false//使用false话，那么仅仅只是申明了buf的类型，没有关联实例对象[java中的话，一般会报空指针]
+	//下面这行语句，对于接口值的赋值，仅仅是给了动态类型是一个byte.Buffer的指针，但是对于动态值，没有进行赋值
+	var buf *bytes.Buffer
+	fmt.Printf("pointer null:%t\n",buf == nil)//输出true
+	if debug{
+		buf = new(bytes.Buffer)//赋值了动态类型和动态值，所以接口值是不为空的
+	}
+
+	buf.WriteString("hello")
+	fmt.Printf("%s\n",buf.String())
+
 }
