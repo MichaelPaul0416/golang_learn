@@ -2,37 +2,27 @@ package main
 
 import (
 	"../chapter7"
-	"sort"
-	"fmt"
+	"net/http"
+	"log"
 )
 
 func main(){
-	s1 := make([]string,10)
-	s1 = append(s1,"b")
-	s1 = append(s1,"c")
-	chapter7.SortSlice(s1)
+	db := chapter7.Database{"shoes":50,"sock":12}
+	//log.Fatal(http.ListenAndServe("localhost:8080",db))//直接所有业务都写在一个Handler中
 
-	s1 = append(s1,"a")
-	sort.Strings(s1)
-	fmt.Printf("go api sort:%v\n",s1)
+	//每个url对应一和handler处理
+	//mux := http.NewServeMux()
+	mux := new(http.ServeMux)//和上面一行的效果是一样的
+	//http.HandlerFunc其实是一个适配器，它实现了接口Handler的方法，同时自己作为一和函数类型
+	//其实自己也可以实现一个，并在其中添加日志处理
+	//下面这行的效果和被注释的那一行效果是一样的，都是将一个方法包装为Handler类型
+	mux.Handle("/price",chapter7.HandlerAdapter(db.Price))
+	//mux.Handle("/price",http.HandlerFunc(db.Price))
+	mux.Handle("/list",http.HandlerFunc(db.List))
+	mux.Handle("/addOrUpdate",chapter7.HandlerAdapter(db.InsertOrUpdate))
+	mux.Handle("/deleteItem",chapter7.HandlerAdapter(db.DeleteItem))
+	//下面这个主要是熟悉error接口
+	mux.Handle("/seeError",chapter7.HandlerAdapter(db.SeeError))//将传入的错误信息封装成一个error返回给调用端
+	log.Fatal(http.ListenAndServe("localhost:8080",mux))
 
-	chapter7.SortTracksByArtist()
-
-	chapter7.SortWithMulti()
-
-	var ary = []int{2,3,1,5,4,1}
-	fmt.Printf("is sorted:%t\n",sort.IntsAreSorted(ary))//sort.IntsAreSorted不会去调用sort#Swap方法，只调用其他两个
-	sort.Ints(ary)
-	fmt.Printf("is sorted:%t\n",sort.IntsAreSorted(ary))
-
-	is := sort.IntSlice(ary)//封装，实现sort接口的方法
-	fmt.Printf("ary:%v\n",is)
-	//sort.Reverse只接受sort接口的实现，所以slice不能直接传入，需要使用sort提供的IntSlice封装一下
-	sort.Sort(sort.Reverse(is))
-	fmt.Printf("reverse ary:%v\n",is)
-	//因为这个方法最终是去调用对应类的Less方法，而reverse只是将原先传入的i,j顺序掉换成j,i
-	//原先的Less返回的是排好序之后s[i] < s[j] = true
-	//现在i->j j->i, 所以s[j] < s[i] = false
-	//所以此时IsSorted返回false
-	fmt.Printf("is sorted:%t\n",sort.IsSorted(is))
 }

@@ -15,3 +15,7 @@ fmt.Printf
 字符串
 len返回字符串的字节数，下标访问操作s[i]则是去的i上的字符
 字符串的第i个字节不一定就是第i个字符，非ASCII字符的UTF8可能需要两个或者更多字节来表示一个字符
+
+fmt.Printf:输出到控制台[os.Stdout]
+fmt.Sprintf:返回一个字符串
+fmt.Fprintf:输出信息到制定的输出流中
