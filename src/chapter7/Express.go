@@ -82,8 +82,8 @@ func (bn binary) Eval(env Env) float64 {
 	panic(fmt.Sprintf("unSupport binary operation:%q\n", bn.op))
 }
 func (bn binary) Check(vars map[Var]bool) error {
-	if !strings.ContainsRune("+-*/", b.op) {
-		return fmt.Errorf("unexpected binary op:%q\n", b.op)
+	if !strings.ContainsRune("+-*/", bn.op) {
+		return fmt.Errorf("unexpected binary op:%q\n", bn.op)
 	}
 	if err := bn.x.Check(vars); err != nil {
 		return err
