@@ -53,7 +53,7 @@ func handleConnection(con net.Conn) {
 	defer closeConn(con)
 
 	for {
-		_, err := io.WriteString(con, time.Now().Format("15:04:10\n"))
+		_, err := io.WriteString(con, time.Now().Format("15:04:05\n"))
 		if err != nil {
 			fmt.Printf("conn error:%v\n", err)
 			return
