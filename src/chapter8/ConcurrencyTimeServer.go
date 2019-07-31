@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net"
 	"io"
+	"strings"
+	"bufio"
 )
 
 func spinner(delay time.Duration) {
@@ -65,4 +67,44 @@ func handleConnection(con net.Conn) {
 func closeConn(con net.Conn) {
 	fmt.Printf("close connection:%v\n", con)
 	con.Close()
+}
+
+
+func echo(c net.Conn,str string,delay time.Duration){
+	fmt.Fprintf(c,"\t%s\n",strings.ToUpper(str))
+	time.Sleep(delay * time.Millisecond)
+	fmt.Fprintf(c,"\t%s\n",str)
+	time.Sleep(delay * time.Millisecond)
+	fmt.Fprintf(c,"\t%s\n",strings.ToLower(str))
+}
+
+func handleConnectionWithTimes(c net.Conn){
+	input := bufio.NewScanner(c)
+	for input.Scan(){
+		s := input.Text()
+		if s == "EOF"{
+			fmt.Printf("close channel:%s\n",c)
+			break
+		}
+		go echo(c,input.Text(),1000)//这里加上go关键字的含义是，对于客户端发送的每一个消息，都交给一个协程进行处理，而不是在一个连接中串行处理客户端请求
+	}
+	closeConn(c)
+}
+
+func TimeServerWithSeveralResponse(){
+	listener,err := net.Listen("tcp",address)
+	if err != nil{
+		fmt.Printf("start server error:%v\n",err)
+		return
+	}
+
+	for{
+		c,err := listener.Accept()
+		if err != nil{
+			fmt.Printf("channel error:%v\n",err)
+			continue
+		}
+
+		go handleConnectionWithTimes(c)
+	}
 }
