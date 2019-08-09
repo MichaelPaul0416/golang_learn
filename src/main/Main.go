@@ -1,20 +1,28 @@
 package main
 
 import (
-	"../chapter8"
 	"fmt"
+	"flag"
+	"../chapter8"
 )
 
-func main() {
-	chapter8.Rocket()
-	fmt.Println("------------------------")
-	chapter8.RocketWithSelect()
-	fmt.Println("------------------------")
-	chapter8.ShowNumber(10,true)
-	fmt.Println("------------------------")
-	chapter8.MultiCasesSelector(10)
-	fmt.Println("------------------------")
-	chapter8.SendMessageWithTick(3)
-	fmt.Println("------------------------")
-	chapter8.UnBlockingSelector()
+func main(){
+	flagParse()
+
+	//chapter8.TotalFileSize()
+
+	chapter8.TotalFileSizeByProcess()
+	fmt.Println("------------------")
+	chapter8.ConcurrencyDirSize()
+}
+
+func flagParse() {
+	flag.Parse()
+	args := flag.Args()
+	//获取命令行的输入参数
+	if len(args) == 0 {
+		fmt.Printf("no arg input\n")
+	} else {
+		fmt.Printf("input args:%v\n", args)
+	}
 }
