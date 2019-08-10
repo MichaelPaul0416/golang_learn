@@ -60,7 +60,7 @@ func broadcaster() {
 
 func handleClientConnection(conn net.Conn) {
 	//为与client的链接创建一个chan,用于该链接异步通过其异步发送消息
-	ch := make(chan string)
+	ch := make(chan string)//这个chan其实是server与客户端链接connection交互的中间角色,server将消息发到这个通道,然后一个专门监听这个chan的goroutine从中读取数据,异步发送到client的链接中
 	go clientWriter(conn, ch)
 
 	from := conn.RemoteAddr().String()
