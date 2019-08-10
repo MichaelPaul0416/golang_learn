@@ -2,14 +2,13 @@ package main
 
 import (
 	"../chapter8"
+	"os"
 )
 
 func main(){
-
-	//b := chapter8.SelfCycle()
-	//fmt.Printf("return:%t\n",b)
-
-	chapter8.Worker()
-
-	chapter8.DownloadBigFile()
+	if os.Args[1] == "s"{
+		chapter8.StartChatServer()
+	}else {
+		chapter8.ConnectServer()
+	}
 }
