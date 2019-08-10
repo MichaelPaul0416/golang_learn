@@ -1,28 +1,15 @@
 package main
 
 import (
-	"fmt"
-	"flag"
 	"../chapter8"
 )
 
 func main(){
-	flagParse()
 
-	//chapter8.TotalFileSize()
+	//b := chapter8.SelfCycle()
+	//fmt.Printf("return:%t\n",b)
 
-	chapter8.TotalFileSizeByProcess()
-	fmt.Println("------------------")
-	chapter8.ConcurrencyDirSize()
-}
+	chapter8.Worker()
 
-func flagParse() {
-	flag.Parse()
-	args := flag.Args()
-	//获取命令行的输入参数
-	if len(args) == 0 {
-		fmt.Printf("no arg input\n")
-	} else {
-		fmt.Printf("input args:%v\n", args)
-	}
+	chapter8.DownloadBigFile()
 }
