@@ -1,14 +1,9 @@
 package main
 
-import (
-	"../chapter8"
-	"os"
-)
+import "../chapter9"
 
 func main(){
-	if os.Args[1] == "s"{
-		chapter8.StartChatServer()
-	}else {
-		chapter8.ConnectServer()
-	}
+	//chapter9.StartBankDemo(10,2)
+
+	chapter9.TestCake(10)
 }
