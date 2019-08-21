@@ -1,13 +1,7 @@
 package main
 
-import (
-	"web"
-	"time"
-)
+import "web"
 
 func main()  {
 	web.StartServer()
-	for {
-		time.Sleep(1 * time.Hour)
-	}
 }
