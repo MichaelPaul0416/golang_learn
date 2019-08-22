@@ -1,4 +1,4 @@
-package web
+package example
 
 import (
 	"net/http"
@@ -7,11 +7,7 @@ import (
 	"sync"
 )
 
-//func handler(writer http.ResponseWriter,r *http.Request){
-//	log.Println("receive request...")
-//	fmt.Fprintf(writer,"Hello world,%s!",r.URL.Path[1:])
-//}
-//
+
 func StartServer(){
 	http.HandleFunc("/", handler)
 	http.HandleFunc("/count", counter)

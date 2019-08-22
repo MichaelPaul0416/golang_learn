@@ -3,7 +3,7 @@ package test
 import (
 	"testing"
 	//绝对路径导包，相当于$GOPATH/http，同时$GOPATH一般就是src目录的上一层
-	"web"
+	web "web/example"
 	"fmt"
 )
 

@@ -1,18 +1,20 @@
-package main
+package test
 
 import (
+	"testing"
 	"web/ch2/db"
 	"fmt"
 )
 
-func main()  {
+func TestThread(t *testing.T){
+
 	ts,err := db.Threads()
 	if err != nil{
 		fmt.Printf("error:%v\n",err)
 		return
 	}
 
-	for t := range ts{
-		fmt.Printf("%v\n",t)
+	for _,t := range ts{
+		fmt.Printf("%s\n",t)
 	}
 }
