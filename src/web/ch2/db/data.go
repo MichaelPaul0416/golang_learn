@@ -44,7 +44,7 @@ func init() {
 		return
 	}
 
-	log.Printf("connect to database successfully:%t", Db == nil)
+	log.Printf("connect to database successfully...")
 }
 
 // create a random UUID with from RFC 4122

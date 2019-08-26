@@ -5,6 +5,7 @@ import (
 	//绝对路径导包，相当于$GOPATH/http，同时$GOPATH一般就是src目录的上一层
 	web "web/example"
 	"fmt"
+	"strings"
 )
 
 func TestSumNumbers(t *testing.T) {
@@ -38,4 +39,16 @@ func TestApply(t *testing.T) {
 	}
 	r := web.Apply(f,1,2)
 	fmt.Printf("return :%d\n",r)
+}
+
+func TestSlice(t *testing.T){
+	p := []int{1,2,3,4,5}
+	p = append(p,3)
+	fmt.Printf("show slice:%v\n",p)
+}
+
+func TestStringReplace(t *testing.T){
+	times := "2019-08-26T16:38:19Z"
+	fmt.Println(strings.Replace(times,"T"," ",1))
+
 }

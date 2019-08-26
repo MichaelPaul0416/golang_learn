@@ -34,6 +34,12 @@ func (s *Session) String() string {
 	return buf.String()
 }
 
+func (user *User) String() string {
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf, "User[Id:%d\t,Uuid:%s\t,Name:%s\t,Email:%s\t,Password:%s\t,CreatedAt:%v]", user.Id, user.Uuid, user.Name, user.Email, user.Password, user.CreatedAt)
+	return buf.String()
+}
+
 //create a session for current user
 func (user *User) CreateSession() (s Session, err error) {
 	statement := "insert into sessions (uuid,email,user_id,created_at) values (?,?,?,?)"
@@ -75,7 +81,7 @@ func (user *User) Session() (session Session, err error) {
 //方法绑定的对象的形参s 在一个包中最好保持一致
 func (s *Session) CheckValid() (valid bool, err error) {
 	err = Db.QueryRow("select id,uuid,email,user_id,created_at from sessions where uuid = ?", s.Uuid).
-		Scan(&s.Id, &s.Uuid, &s.Email, &s.Uuid, &s.CreatedAt)
+		Scan(&s.Id, &s.Uuid, &s.Email, &s.UserId, &s.CreatedAt)
 
 	if err != nil {
 		valid = false
@@ -96,7 +102,7 @@ func (s *Session) DeleteByUuid() (err error) {
 		return err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(sql)
+	_, err = stmt.Exec(s.Uuid)
 	if err != nil {
 		log.Printf("delete session by uuid error:%v\n", err)
 		return err
@@ -111,7 +117,7 @@ func (s *Session) User() (user User, err error) {
 	user = User{}
 	sql := "select id,uuid,name,email,created_at from users where id = ?"
 	//查询一行
-	err = Db.QueryRow(sql).Scan(&user.Id, &user.Uuid, &user.Name, &user.Email, &user.CreatedAt)
+	err = Db.QueryRow(sql,s.UserId).Scan(&user.Id, &user.Uuid, &user.Name, &user.Email, &user.CreatedAt)
 
 	return
 }
@@ -130,12 +136,13 @@ func (user *User) Create() (id int64, err error) {
 		return
 	}
 
-	res, err := stmt.Exec(CreateUUID(), user.Name, user.Email, user.Password, DateTimeNow())
+	res, err := stmt.Exec(CreateUUID(), user.Name, user.Email, Encrypt(user.Password), DateTimeNow())
 	if err != nil {
 		return
 	}
-
-	return res.LastInsertId()
+	uid, err := res.LastInsertId()
+	user.Id = int(uid)
+	return uid, err
 }
 
 //delete user
@@ -167,38 +174,90 @@ func (user *User) Update() (err error) {
 	return
 }
 
+func (user *User) CreateThread(topic string) (conv Thread, err error) {
+	sql := "insert into threads (uuid,topic,user_id,created_at) values(?,?,?,?)"
+	stmt, err := Db.Prepare(sql)
+	if err != nil {
+		return
+	}
+
+	defer stmt.Close()
+	(&conv).Uuid = CreateUUID()
+	(&conv).CreatedAt = time.Now()
+	(&conv).Topic = topic
+	(&conv).Userid = user.Id
+
+	res, err := stmt.Exec(conv.Uuid, conv.Topic, conv.Userid, conv.CreatedAt)
+	if err != nil {
+		return
+	}
+
+	tid, err := res.LastInsertId()
+	(&conv).Id = int(tid)
+	return
+}
+
+func (user *User) CreatePost(thread ThreadPojo, body string) (post Post, err error) {
+	sql := "insert into posts (uuid,body,user_id,thread_id,created_at) values (?,?,?,?,?)"
+	stmt, err := Db.Prepare(sql)
+	if err != nil {
+		return
+	}
+	defer stmt.Close()
+	var p Post
+	(&p).CreatedAt = time.Now()
+	(&p).Uuid = CreateUUID()
+	(&p).Body = body
+	(&p).ThreadId = thread.Id
+	(&p).UserId = user.Id
+
+	res, err := stmt.Exec(p.Uuid, p.Body, p.UserId, p.ThreadId, p.CreatedAt)
+	if err != nil {
+		return
+	}
+	pid, err := res.LastInsertId()
+	if err != nil {
+		return
+	}
+	(&p).Id = int(pid)
+	return p, nil
+}
+
 func UserDeleteAll() (err error) {
 	_, err = Db.Exec("delete from users")
 	return
 }
 
 func Users() (users []User, err error) {
-	rows,err := Db.Query("select id,uuid,name,email,password,created_at from users");
-	if err != nil{
+	rows, err := Db.Query("select id,uuid,name,email,password,created_at from users");
+	if err != nil {
 		return
 	}
 
-	for rows.Next(){
+	for rows.Next() {
 		user := User{}
-		if err = rows.Scan(&user.Id,&user.Uuid,&user.Name,&user.Email,&user.Password,&user.CreatedAt); err != nil{
+		if err = rows.Scan(&user.Id, &user.Uuid, &user.Name, &user.Email, &user.Password, &user.CreatedAt); err != nil {
 			return
 		}
 
-		users = append(users,user)
+		users = append(users, user)
 	}
 
 	rows.Close()
 	return
 }
 
-func UserByEmail(email string)(user User,err error){
+func UserByEmail(email string) (user User, err error) {
 	sql := "select id,uuid,name,email,password,created_at from users where email = ?"
-	err = Db.QueryRow(sql).Scan(&user.Id,&user.Uuid,&user.Name,&user.Email,&user.Password,&user.CreatedAt)
+	if err != nil{
+		return
+	}
+	err = Db.QueryRow(sql,email).Scan(&user.Id, &user.Uuid, &user.Name, &user.Email, &user.Password, &user.CreatedAt)
 	return
 }
 
-func UserByUuid(uuid string)(user User,err error){
+func UserByUuid(uuid string) (user User, err error) {
 	sql := "select id,uuid,name,email,password,created_at from users where uuid = ?"
-	err = Db.QueryRow(sql).Scan(&user.Id,&user.Uuid,&user.Name,&user.Email,&user.Password,&user.CreatedAt)
+	err = Db.QueryRow(sql,uuid).Scan(&user.Id, &user.Uuid, &user.Name, &user.Email, &user.Password, &user.CreatedAt)
 	return
 }

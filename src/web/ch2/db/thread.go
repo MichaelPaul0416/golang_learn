@@ -5,6 +5,7 @@ import (
 	"log"
 	"bytes"
 	"fmt"
+	"strings"
 )
 
 /**
@@ -42,7 +43,7 @@ func DateTimeToString(t time.Time) string{
 }
 
 func (th *Thread) NumReplies()(count int){
-	rows,err := Db.Query("select count(*) from posts where thread_id = $1",th.Id)
+	rows,err := Db.Query("select count(*) from posts where thread_id = ? ",th.Id)
 	if err != nil{
 		return
 	}
@@ -86,11 +87,19 @@ func (t Thread) String() string {
 	return buf.String()
 }
 
+type ThreadPojo struct {
+	Id int
+	Topic string
+	User User
+	CreatedAtDate string
+	NumReplies int
+	Uuid string
+}
 /**
 从数据库里面取出所有帖子并将其返回给调用方
  */
-func Threads() (threads []Thread, err error) {
-	s := "select id,uuid,topic,user_id,created_at from threads order by created_at desc"
+func Threads() (threads []ThreadPojo, err error) {
+	s := "SELECT a.id, a.uuid, a.topic, b.`name`, a.created_at FROM threads a , users b where a.user_id = b.id ORDER BY a.created_at DESC"
 
 	if Db == nil {
 		fmt.Printf("nil database connection\n")
@@ -103,18 +112,41 @@ func Threads() (threads []Thread, err error) {
 		return
 	}
 
-	//var ts []Thread
+
 	for rows.Next() {
 		//构造一个新对象
-		th := Thread{}
+		th := ThreadPojo{}
 
-		if err = rows.Scan(&th.Id, &th.Uuid, &th.Topic, &th.Userid, &th.CreatedAt); err != nil {
+		if err = rows.Scan(&th.Id, &th.Uuid, &th.Topic, &th.User.Name, &th.CreatedAtDate); err != nil {
 			log.Printf("read data error:%v\n", err)
 			return
 		}
 
+		formatTime(&th)
 		threads = append(threads, th)
 	}
 	rows.Close()
 	return threads, nil
+}
+
+func formatTime(th *ThreadPojo) {
+	th.CreatedAtDate = strings.Replace(th.CreatedAtDate, "T", " ", 1)
+	th.CreatedAtDate = strings.Replace(th.CreatedAtDate, "Z", "", 1)
+}
+
+
+//get thread by uuid
+func ThreadByUuid(uuid string)(conv ThreadPojo,err error){
+	conv = ThreadPojo{}
+	err = Db.QueryRow("SELECT a.id, a.uuid, a.topic, b.`name`, a.created_at FROM threads a , users b where a.user_id = b.id and a.uuid=?",uuid).
+		Scan(&conv.Id,&conv.Uuid,&conv.Topic,&conv.User.Name,&conv.CreatedAtDate)
+	formatTime(&conv)
+	return
+}
+
+func (post *Post) String()string{
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf,"Post[id:%d\t,Uuid:%s\t,Body:%s\t,UserId:%d\t,ThreadId:%d\t,CreatedAt:%v]",
+		post.Id,post.Uuid,post.Body,post.UserId,post.ThreadId,post.CreatedAt)
+	return buf.String()
 }

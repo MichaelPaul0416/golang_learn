@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"fmt"
 	"log"
-	"html/template"
 	"web/ch2/db"
 )
 
@@ -12,7 +11,24 @@ func SimpleHttpServer() {
 	//新建一个多路复用器
 	mux := http.NewServeMux()
 
-	files := http.FileServer(http.Dir("D:/GoLearn"))
+	files := http.FileServer(http.Dir("./public/"))
+
+	mux.HandleFunc("/",index)
+	// set error page
+	mux.HandleFunc("/err",err)
+
+	mux.HandleFunc("/login",login)
+	mux.HandleFunc("/logout",logout)
+	mux.HandleFunc("/signup",signup)
+	mux.HandleFunc("/signup_account",signupAccount)
+	mux.HandleFunc("/authenticate",authenticate)
+
+
+	mux.HandleFunc("/thread/new",newThread)
+	mux.HandleFunc("/thread/create",createThread)
+	mux.HandleFunc("/thread/post",postThread)
+	mux.HandleFunc("/thread/read",readThread)
+
 	//处理器
 	mux.Handle("/static/", http.StripPrefix("/static/", files))
 
@@ -22,7 +38,6 @@ func SimpleHttpServer() {
 		showHttpHeaderParam(writer,request)
 	})
 
-	mux.HandleFunc("/",index)
 
 
 	server := &http.Server{
@@ -33,22 +48,36 @@ func SimpleHttpServer() {
 }
 
 func index(response http.ResponseWriter,r *http.Request){
-	//slice
-	files := []string{
-		"templates/layout.html",
-		"templates/navbar.html",
-		"templates/index.html",
+	if "favicon.ico" == r.URL.Path{
+		return
 	}
 
-	templates := template.Must(template.ParseFiles(files...))
+	_,err := session(response,r)
+
 	threads,err := db.Threads()
 	if err != nil{
 		fmt.Fprintf(response,"query all threads failed")
 		return
 	}
-	log.Printf("total threads[%d]\n",len(threads))
-	templates.ExecuteTemplate(response,"layout",threads)
 
+	if err != nil{
+		generateHTML(response,threads,"layout","public.navbar","index")
+	}else{
+		generateHTML(response,threads,"layout","private.navbar","index")
+	}
+
+}
+
+func err(w http.ResponseWriter,r *http.Request){
+	//获取get请求中的键值对
+	vals := r.URL.Query()
+
+	_,err := session(w,r)
+	if err != nil{
+		generateHTML(w,vals.Get("msg"),"layout","public.navbar","error")
+	}else{
+		generateHTML(w,vals.Get("msg"),"layout","private.navbar","error")
+	}
 }
 
 func showHttpHeaderParam(response http.ResponseWriter,request *http.Request){
