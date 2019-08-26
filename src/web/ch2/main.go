@@ -1,10 +1,11 @@
-package ch2
+package main
 
 import (
 	"net/http"
 	"fmt"
 	"log"
 	"html/template"
+	"web/ch2/db"
 )
 
 func SimpleHttpServer() {
@@ -20,6 +21,8 @@ func SimpleHttpServer() {
 		fmt.Fprintf(writer, "Welcome:%s and visit path:%s\n", request.URL.Query().Get("name"), request.URL.Path)
 		showHttpHeaderParam(writer,request)
 	})
+
+	mux.HandleFunc("/",index)
 
 
 	server := &http.Server{
@@ -38,7 +41,14 @@ func index(response http.ResponseWriter,r *http.Request){
 	}
 
 	templates := template.Must(template.ParseFiles(files...))
-	
+	threads,err := db.Threads()
+	if err != nil{
+		fmt.Fprintf(response,"query all threads failed")
+		return
+	}
+	log.Printf("total threads[%d]\n",len(threads))
+	templates.ExecuteTemplate(response,"layout",threads)
+
 }
 
 func showHttpHeaderParam(response http.ResponseWriter,request *http.Request){
@@ -47,4 +57,8 @@ func showHttpHeaderParam(response http.ResponseWriter,request *http.Request){
 		fmt.Fprintf(response,"key:%s -- value:%s\n",h,request.Header.Get(h))
 	}
 	log.Printf("------------------------------------------\n")
+}
+
+func main(){
+	SimpleHttpServer()
 }
