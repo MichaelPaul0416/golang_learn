@@ -5,7 +5,6 @@ import (
 	"log"
 	"bytes"
 	"fmt"
-	"strings"
 )
 
 /**
@@ -42,8 +41,8 @@ func DateTimeToString(t time.Time) string{
 	return t.Format(TimeFormat)
 }
 
-func (th *Thread) NumReplies()(count int){
-	rows,err := Db.Query("select count(*) from posts where thread_id = ? ",th.Id)
+func (t *Thread) NumReplies()(count int){
+	rows,err := Db.Query("select count(*) from posts where thread_id = ? ",t.Id)
 	if err != nil{
 		return
 	}
@@ -58,8 +57,8 @@ func (th *Thread) NumReplies()(count int){
 	return
 }
 
-func (t *Thread) Posts(posts []Post,err error){
-	s := "select id,uuid,body,user_id,thread_id,created_at from posts where thread_id = $1"
+func (t *Thread) Posts()(posts []Post,err error){
+	s := "select id,uuid,body,user_id,thread_id,created_at from posts where thread_id = ?"
 	rows,err := Db.Query(s,t.Id)
 	if err != nil{
 		log.Printf("query error[%s]/t:%v\n",s,err)
@@ -78,7 +77,20 @@ func (t *Thread) Posts(posts []Post,err error){
 	return
 }
 
+func (t *Thread) User()(user User){
+	user = User{}
+	err := Db.QueryRow("select id,uuid,name,email,created_at from users where id = ?",t.Userid).
+		Scan(&user.Id,&user.Uuid,&user.Name,&user.Email,&user.CreatedAt)
+	if err != nil{
+		return
+	}
 
+	return
+}
+
+func (t *Thread) CreatedAtDate() string{
+	return DateTimeToString(t.CreatedAt)
+}
 
 func (t Thread) String() string {
 	var buf bytes.Buffer
@@ -87,19 +99,12 @@ func (t Thread) String() string {
 	return buf.String()
 }
 
-type ThreadPojo struct {
-	Id int
-	Topic string
-	User User
-	CreatedAtDate string
-	NumReplies int
-	Uuid string
-}
 /**
 从数据库里面取出所有帖子并将其返回给调用方
  */
-func Threads() (threads []ThreadPojo, err error) {
-	s := "SELECT a.id, a.uuid, a.topic, b.`name`, a.created_at FROM threads a , users b where a.user_id = b.id ORDER BY a.created_at DESC"
+func Threads() (threads []Thread, err error) {
+	//s := "SELECT a.id, a.uuid, a.topic, b.`name`, a.created_at FROM threads a , users b where a.user_id = b.id ORDER BY a.created_at DESC"
+	s := "SELECT id, uuid, topic, user_id, created_at FROM threads ORDER BY created_at DESC"
 
 	if Db == nil {
 		fmt.Printf("nil database connection\n")
@@ -115,32 +120,25 @@ func Threads() (threads []ThreadPojo, err error) {
 
 	for rows.Next() {
 		//构造一个新对象
-		th := ThreadPojo{}
+		th := Thread{}
 
-		if err = rows.Scan(&th.Id, &th.Uuid, &th.Topic, &th.User.Name, &th.CreatedAtDate); err != nil {
+		if err = rows.Scan(&th.Id, &th.Uuid, &th.Topic, &th.Userid, &th.CreatedAt); err != nil {
 			log.Printf("read data error:%v\n", err)
 			return
 		}
 
-		formatTime(&th)
 		threads = append(threads, th)
 	}
 	rows.Close()
 	return threads, nil
 }
 
-func formatTime(th *ThreadPojo) {
-	th.CreatedAtDate = strings.Replace(th.CreatedAtDate, "T", " ", 1)
-	th.CreatedAtDate = strings.Replace(th.CreatedAtDate, "Z", "", 1)
-}
-
 
 //get thread by uuid
-func ThreadByUuid(uuid string)(conv ThreadPojo,err error){
-	conv = ThreadPojo{}
-	err = Db.QueryRow("SELECT a.id, a.uuid, a.topic, b.`name`, a.created_at FROM threads a , users b where a.user_id = b.id and a.uuid=?",uuid).
-		Scan(&conv.Id,&conv.Uuid,&conv.Topic,&conv.User.Name,&conv.CreatedAtDate)
-	formatTime(&conv)
+func ThreadByUuid(uuid string)(conv Thread,err error){
+	conv = Thread{}
+	err = Db.QueryRow("SELECT id, uuid, topic, user_id, created_at FROM threads WHERE uuid = ?",uuid).
+		Scan(&conv.Id,&conv.Uuid,&conv.Topic,&conv.Userid,&conv.CreatedAt)
 	return
 }
 
@@ -149,4 +147,16 @@ func (post *Post) String()string{
 	fmt.Fprintf(&buf,"Post[id:%d\t,Uuid:%s\t,Body:%s\t,UserId:%d\t,ThreadId:%d\t,CreatedAt:%v]",
 		post.Id,post.Uuid,post.Body,post.UserId,post.ThreadId,post.CreatedAt)
 	return buf.String()
+}
+
+func (post *Post) User()(user User){
+	user = User{}
+	Db.QueryRow("select id,uuid,name,email,created_at from users where id = ?",post.UserId).
+		Scan(&user.Id,&user.Uuid,&user.Name,&user.Email,&user.CreatedAt)
+	log.Printf("%s\n",&user)
+	return
+}
+
+func (post *Post) CreatedAtDate() string{
+	return DateTimeToString(post.CreatedAt)
 }

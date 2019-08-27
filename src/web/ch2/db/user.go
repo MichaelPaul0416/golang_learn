@@ -197,7 +197,7 @@ func (user *User) CreateThread(topic string) (conv Thread, err error) {
 	return
 }
 
-func (user *User) CreatePost(thread ThreadPojo, body string) (post Post, err error) {
+func (user *User) CreatePost(thread Thread, body string) (post Post, err error) {
 	sql := "insert into posts (uuid,body,user_id,thread_id,created_at) values (?,?,?,?,?)"
 	stmt, err := Db.Prepare(sql)
 	if err != nil {
