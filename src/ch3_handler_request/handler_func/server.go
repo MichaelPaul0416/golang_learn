@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"fmt"
 	"time"
+	"runtime"
+	"reflect"
 )
 
 type MyHandler struct{}
@@ -27,6 +29,15 @@ func timeNow(w http.ResponseWriter, r *http.Request) {
 func DateTimeNow() string {
 	return time.Now().Format("2006-01-02 15:04:05")
 }
+
+func log(h http.HandlerFunc) http.HandlerFunc{
+	return func(writer http.ResponseWriter, request *http.Request) {
+		name := runtime.FuncForPC(reflect.ValueOf(h).Pointer()).Name()
+		fmt.Printf("handler function called-" + name)
+		h(writer,request)
+	}
+}
+
 func main() {
 	handler := MyHandler{}
 	//server := http.Server{
@@ -43,7 +54,7 @@ func main() {
 	http.Handle("/wel", &handler)
 	http.Handle("/info", &nameHandler)
 	//HandleFunc 函数将timeNow函数转换为一个Handler，将它与DefaultServeMux绑定，以此简化创建并且绑定Handler的工作
-	http.HandleFunc("/time", timeNow)
+	http.HandleFunc("/time", log(timeNow))
 
 	server.ListenAndServe()
 }
