@@ -1,0 +1,29 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Go Web Programming</title>
+	</head>
+
+	<body>
+		<form action="http://127.0.0.1:8080/form/url?first_name=jane&thread=123" method="post" enctype="application/x-www-form-urlencoded">
+			<input type="text" name="last_name" value="king"/>
+			<input type="text" name="first_name" value="zhang"/>
+			<input type="submit"/>
+		</form>
+
+		<hr/>
+
+		<form action="http://127.0.0.1:8080/form/multi?first_name=jane&thread=123" method="post" enctype="multipart/form-data">
+            <input type="text" name="last_name" value="king"/>
+            <input type="text" name="first_name" value="zhang"/>
+            <input type="submit"/>
+		</form>
+
+        <form action="http://localhost:8080/fileUpload" method="post" enctype="multipart/form-data">
+            <input type="text" name="last_name" value="king"/>
+            <input type="text" name="first_name" value="zhang"/>
+            <input type="file" name="upload"/>
+            <input type="submit"/>
+        </form>
+	</body>
+</html>
