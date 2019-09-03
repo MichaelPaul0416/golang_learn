@@ -5,24 +5,18 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"time"
 	"fmt"
+	"math/rand"
 )
 
-type art struct {
-	id       int
-	content  string
-	author   string `sql:"not null"`
-	comments []comm
-	created  time.Time
-}
 
-type comm struct {
-	id      int
-	content string
-	author  string `sql:"not null"`
-	artId   int    `sql:"index"`
-	created time.Time
+type Like struct {
+	ID        int    `gorm:"primary_key"`
+	Ip        string `gorm:"type:varchar(20);not null;index:ip_idx"`
+	Ua        string `gorm:"type:varchar(256);not null;"`
+	Title     string `gorm:"type:varchar(128);not null;index:title_idx"`
+	Hash      uint64 `gorm:"unique_index:hash_idx;"`
+	CreatedAt time.Time
 }
-
 var dbGrom *gorm.DB
 
 func init() {
@@ -33,26 +27,27 @@ func init() {
 	}else{
 		fmt.Printf("connect to db successfully\n")
 	}
+	//不设置这个参数，会把表名转义后加s
+	dbGrom.SingularTable(true)
 
 	//如果数据库里面没有对应的表，则根据结构体生成对应的表
-	dbGrom.AutoMigrate(&art{}, &comm{})
+
+	dbGrom.Set("gorm:table_options","ENGINE=InnoDB").AutoMigrate(&Like{})
 }
 
 func main() {
-	a := art{content: "hello", author: "jane",comments:[]comm{}}
-	fmt.Println(a)
 
-	dbGrom.Create(&a)
-	fmt.Printf("after insert:%v\n", a)
+	like := &Like{
+		Ip:        "127.0.0.1",
+		Ua:        "aaa",
+		Title:     "bbb",
+		Hash:      uint64(rand.Intn(1000)),
+		CreatedAt: time.Now(),
+	}
+	if err := dbGrom.Create(like).Error; err != nil {
+		fmt.Printf("err:%v\n",err)
+	}
 
-	c := comm{content: "world", author: "jane"}
-	//目前下面执行到Association的时候报了空指针，可能原因是Model方法返回的记录为空[因为目前值执行dbGrom.Create的时候，记录没有插到数据库里面]
-	dbGrom.Model(&a).Association("comments").Append(c)
+	fmt.Printf("after insert:%v\n",like)
 
-	var readArt art
-	dbGrom.Where("author = ?", "jane").First(&readArt)
-
-	var cs []comm
-	dbGrom.Model(&readArt).Related(&cs)
-	fmt.Println(cs)
 }
