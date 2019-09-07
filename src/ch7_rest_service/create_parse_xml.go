@@ -6,7 +6,7 @@ import (
 	"os"
 	"io/ioutil"
 	"bytes"
-	"strings"
+	"io"
 )
 
 type Post struct {
@@ -46,8 +46,47 @@ func (author *Author) String() string {
 func (post *Post) String() string {
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf,"Post{XMLName:%s,Id:%s,Content:%s,Author:%s,Xml:%s}\n",
-		post.XMLName,post.Id,post.Content,post.Author,strings.ReplaceAll(post.Xml,"\\r\\n",""))
+		post.XMLName,post.Id,post.Content,post.Author,post.Xml)
 	return buf.String()
+}
+
+//当需要解析的xml是流式或者比较大的时候,使用用decoder进行逐步解析
+func DecoderXml(){
+	xmlFile,err := os.Open("src/ch7_rest_service/post.xml")
+	if err != nil{
+		panic(err)
+	}
+
+	defer xmlFile.Close()
+	decoder := xml.NewDecoder(xmlFile)
+	for{
+		t,err := decoder.Token()
+		if err == io.EOF{
+			fmt.Printf("read the end\n")
+			return
+		}
+
+		if err != nil{
+			fmt.Printf("error decoding xml into token :%v\n" , err)
+			return
+		}
+
+		switch se:= t.(type) {
+		case xml.StartElement:
+			if se.Name.Local == "comment"{
+				var comment Comment
+				decoder.DecodeElement(&comment,&se)
+				fmt.Printf("comment:%v\n",comment)
+			}
+
+			if se.Name.Local == "content"{
+				var content string
+				decoder.DecodeElement(&content,&se)
+				fmt.Printf("content:%s\n",content)
+			}
+
+		}
+	}
 }
 
 func main() {
@@ -68,4 +107,7 @@ func main() {
 	xml.Unmarshal(xmlData, &p)
 	//fmt.Printf("xml data:%s\n", &p)
 	fmt.Println(p)
+
+	fmt.Printf("-------------------------------------------\n")
+	DecoderXml()
 }
