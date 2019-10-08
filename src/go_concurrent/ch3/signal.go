@@ -81,6 +81,11 @@ func handleSignal()  {
 	fmt.Println("wait for 2 seconds...")
 	time.Sleep(2 * time.Second)
 	fmt.Printf("stop notification...")
+	/**
+	恢复进程对应对应信号的默认操作(操作系统提供)
+	取消掉之前调用Notify函数告知signal处理程序需要自行处理若干信号的行为(其实就是取消之前注册的动作)
+	一般都是使用close(chan)搭配signal.Notify(chan)使用,使得goroutine从for监听chan的循环中返回
+	 */
 	signal.Stop(signalRecv1)
 	close(signalRecv1)
 	fmt.Printf("done .[sigRecv1]\n")
