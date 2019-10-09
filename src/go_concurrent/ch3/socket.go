@@ -204,7 +204,7 @@ net.Listen方法是面向流的，第一个参数值可以是tcp,tcp4,tcp6,unix,
 //conn.SetDeadline(time.Now().Add(2 * time.Second))
 //n, err := conn.Read(b)
 //if err != nil {
-// 返回的异常类型如果是io.EOF的话，代表连接已经被远程关闭，在这个tcp连接智商已经没有可以再读取的数据，这个tcp连接可以被关闭
+// 返回的异常类型如果是io.EOF的话，代表连接已经被远程关闭，在这个tcp连接之上已经没有可以再读取的数据，这个tcp连接可以被关闭
 //if err == io.EOF {
 //	fmt.Printf("connection closed by remote point\n")
 //	conn.Close()
