@@ -14,6 +14,7 @@ type changeWrapper struct {
 }
 
 var structChan = make(chan map[string]wrapper, 1)
+// value类型是指针类型，此时接收方对数据的修改会影响到发送方
 var changeChan = make(chan map[string]*changeWrapper,1)
 
 func main() {
