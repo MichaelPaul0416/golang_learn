@@ -29,6 +29,8 @@ func receiver(notify <-chan struct{}, dc <-chan int, ms chan<- struct{}) {
 			break
 		}
 	}
+	// go无法关闭接收的通道,所以下面的代码会报错
+	// close(dc)
 	fmt.Printf("receive done.\n")
 	ms <- struct{}{}
 }
