@@ -107,13 +107,13 @@ func (gen *myGenerator) Start() bool {
 }
 
 func (gen *myGenerator) Stop() bool {
-	if !atomic.CompareAndSwapUint32(&gen.status,lib.STATUS_STARTED,lib.STATUS_STARTING){
+	if !atomic.CompareAndSwapUint32(&gen.status, lib.STATUS_STARTED, lib.STATUS_STARTING) {
 		return false
 	}
 
 	gen.cancelFunc()
-	for{
-		if atomic.LoadUint32(&gen.status) == lib.STATUS_STOPPED{
+	for {
+		if atomic.LoadUint32(&gen.status) == lib.STATUS_STOPPED {
 			break
 		}
 		time.Sleep(time.Microsecond)
@@ -121,11 +121,11 @@ func (gen *myGenerator) Stop() bool {
 	return true
 }
 
-func (gen *myGenerator) Status() uint32{
+func (gen *myGenerator) Status() uint32 {
 	return atomic.LoadUint32(&gen.status)
 }
 
-func (gen *myGenerator) CallCount() int64{
+func (gen *myGenerator) CallCount() int64 {
 	return atomic.LoadInt64(&gen.callCount)
 }
 
