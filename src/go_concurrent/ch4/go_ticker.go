@@ -12,14 +12,16 @@ func main() {
 	tc := time.NewTicker(1 * time.Second)
 	var i int
 	// for + range:这种形式是从一个可缓冲的通道中，持续不断的接受值，直到接受完毕或者通道被关闭
-	Loop:
+Loop:
 	for {
 		select {
 		case <-tc.C:
 			fmt.Printf("time:%v\n", time.Now())
+		// 以内部时间为准
+			time.Sleep(2 * time.Second)
 			if i < 10 {
 				i++
-			}else {
+			} else {
 				break Loop
 			}
 		}
