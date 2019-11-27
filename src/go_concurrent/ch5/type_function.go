@@ -11,7 +11,7 @@ type SimpleFun interface {
 	Display(n string,age *int32) int32;
 }
 
-// 有点像代理模式，给你增加一些前置后置的逻辑，用以增强
+// 有点像代理模式，给你增加一些前置后置的逻辑，用以增强，将一个函数func转换为一个接口类型
 func (f FunHandler) Display(n string,age *int32) int32{
 	// 先拦截处理一下参数
 	fmt.Printf("name:%s\t and age:%d\n",n,*age)
